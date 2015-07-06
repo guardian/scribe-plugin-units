@@ -1,0 +1,11 @@
+{
+  "name": "scribe-plugin-units",
+  "dependencies": {
+    "lodash-amd": "3.5.0"
+  },
+  "devDependencies": {
+    "requirejs": "~2.1.9",
+    "immutable": "~3.6.2",
+    "scribe": "guardian/scribe#master"
+  }
+}
