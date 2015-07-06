@@ -1,56 +1,23 @@
 define([
-  'lodash-amd/modern/lang/toArray'
+  'lodash-amd/modern/lang/toArray',
+   '../../scribe-plugin-units/src/units'
 ], function (
-  toArray
+  toArray,
+  units
 ) {
 
-  'use strict';
-
   return function () {
-
-    var openDoubleCurly = '“';
-    var closeDoubleCurly = '”';
-
-    var openSingleCurly = '‘';
-    var closeSingleCurly = '’';
-
-    var NON_BREAKING_SPACE = '\u00A0';
-
     return function (scribe) {
-      /**
-       * Run the formatter as you type on the current paragraph.
-       *
-       * FIXME: We wouldn't have to do this if the formatters were run on text
-       * node mutations, but that's expensive unil we have a virtual DOM.
-       */
-
-      var keys = {
-        34: '"',
-        39: '\''
-      };
-      var curlyQuoteChar;
-
       var elementHelpers = scribe.element;
-
-      // `input` doesn't tell us what key was pressed, so we grab it beforehand
-      scribe.el.addEventListener('keypress', function (event) {
-        curlyQuoteChar = keys[event.charCode];
-      });
-
-      // When the character is actually inserted, format it to transform.
       scribe.el.addEventListener('input', function () {
-        if (curlyQuoteChar) {
-          var selection = new scribe.api.Selection();
-          var containingBlockElement = scribe.allowsBlockElements()
-            ? selection.getContaining(elementHelpers.isBlockElement)
-            : scribe.el;
+        var selection = new scribe.api.Selection();
+        var containingBlockElement = scribe.allowsBlockElements()
+          ? selection.getContaining(elementHelpers.isBlockElement)
+          : scribe.el;
 
-          selection.placeMarkers();
-          containingBlockElement.innerHTML = substituteCurlyQuotes(containingBlockElement.innerHTML);
-          selection.selectMarkers();
-          // Reset
-          curlyQuoteChar = undefined;
-        }
+        selection.placeMarkers();
+        containingBlockElement.innerHTML = substituteCurlyQuotes(containingBlockElement.innerHTML);
+        selection.selectMarkers();
       });
 
       // Substitute quotes on setting content or paste
@@ -74,18 +41,10 @@ define([
           // Split by elements
           // We tokenise with the previous text nodes for context, but
           // only extract the current text node.
-          var tokens = (prev + str).split(/(<[^>]+?>(?:.*<\/[^>]+?>)?)/);
-          return tokens
-            .map(function(token) {
-              // Only replace quotes in text between (potential) HTML elements
-              if (/^</.test(token)) {
-                return token;
-              } else {
-                return convert(token);
-              }
-            })
-            .join('')
-            .slice(prev.length);
+          //var tokens = str.replace .split(/(<[^>]+?>(?:.*<\/[^>]+?>)?)/);
+
+          //return str.replace(/£([\d]+)/, "<span data-currency=\"GBP\">£$1</span>");
+          return str;
         });
 
         return holder.innerHTML;
