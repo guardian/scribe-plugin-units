@@ -49,7 +49,7 @@ define([
 
       // `input` doesn't tell us what key was pressed, so we grab it beforehand
       scribe.el.addEventListener('keypress', function (event) {
-        currencyChar = keys[event.charCode];
+        currencyChar = 'y' //keys[event.charCode];
       });
 
       // When the character is actually inserted, format it to transform.
@@ -84,35 +84,45 @@ define([
         return holder.childNodes;
       }
 
+      function currencyTidy(node) {
+        var holder = document.createElement('div');
+        holder.innerHTML = node.innerHTML.replace(/£([\d]+\.?[\d]*)/g, "<data data-type=\"currency\">£$1</data>")
+        return holder.childNodes;
+      }
+
       function replaceWithMultiple(node, child, extra) {
         if (extra.length == 0)
           return;
         while (extra.length > 1) {
           node.insertBefore(extra[0], child);
         }
+        var lastChild = extra[0]
         node.replaceChild(extra[0], child);
+        return lastChild
       }
 
       function unitsNormalize(html) {
         var holder = document.createElement('div');
         holder.innerHTML = html;
-        console.log(html)
         var normed = parseNodes(holder).innerHTML
-        console.log(normed)
         return normed
       }
 
       function parseNodes(node) {
         var child = node.firstChild;
         while (child) {
+          console.log(child.tagName)
+          console.log(child)
           if (child.nodeType == child.TEXT_NODE) {
-            replaceWithMultiple(node, child, currencyReplace(child));
+            child = replaceWithMultiple(node, child, currencyReplace(child));
+          } else if(child.getAttribute("data-type") == "currency") {
+            child = replaceWithMultiple(node, child, currencyTidy(child));
           } else if(child.childNodes.length > 0) {
             parseNodes(child);
           } else {
           }
           if (child != null)
-          child = child.nextSibling;
+            child = child.nextSibling;
         }
         return node;
       }
