@@ -21,52 +21,20 @@ define([
 
       addCss();
 
-      /**
-       * Run the formatter as you type on the current paragraph.
-       *
-       * FIXME: We wouldn't have to do this if the formatters were run on text
-       * node mutations, but that's expensive unil we have a virtual DOM.
-       */
-
-      var keys = {
-        34: '"',
-        39: '\'',
-        163: '£',
-        48: '0',
-        49: '1',
-        50: '2',
-        51: '3',
-        52: '4',
-        53: '5',
-        54: '6',
-        55: '7',
-        56: '8',
-        57: '9'
-      };
-      var currencyChar;
 
       var elementHelpers = scribe.element;
 
-      // `input` doesn't tell us what key was pressed, so we grab it beforehand
-      scribe.el.addEventListener('keypress', function (event) {
-        currencyChar = 'y' //keys[event.charCode];
-      });
-
       // When the character is actually inserted, format it to transform.
       scribe.el.addEventListener('input', function () {
-        if (currencyChar) {
-          var selection = new scribe.api.Selection();
-          var containingBlockElement = scribe.allowsBlockElements()
-            ? selection.getContaining(elementHelpers.isBlockElement)
-            : scribe.el;
+        var selection = new scribe.api.Selection();
+        var containingBlockElement = scribe.allowsBlockElements()
+          ? selection.getContaining(elementHelpers.isBlockElement)
+          : scribe.el;
 
-          selection.placeMarkers();
+        selection.placeMarkers();
 
-          containingBlockElement.innerHTML = unitsNormalize(containingBlockElement.innerHTML);
-          selection.selectMarkers();
-          // Reset
-          currencyChar = undefined;
-        }
+        containingBlockElement.innerHTML = unitsNormalize(containingBlockElement.innerHTML);
+        selection.selectMarkers();
       });
 
       // Substitute quotes on setting content or paste
@@ -74,11 +42,13 @@ define([
 
       function currencyReplace(node) {
         var holder = document.createElement('div');
-        holder.innerHTML = node.data.replace(/£([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-user-disabled=\"false\" data-currency=\"GBP\">£$1</data>");
+        holder.innerHTML = node.data.replace(/£([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-user-disabled=\"false\" data-type=\"GBP\">£$1</data>");
         var units = holder.querySelector("data.detected-unit");
-        for (var i = 0; i < units.length; i++) {
-          units[i].onclick = function() {
-            this.setAttribute("data-user-disabled", "true");
+        if (units) {
+          for (var i = 0; i < units.length; i++) {
+            units[i].onclick = function () {
+              this.setAttribute("data-user-disabled", "true");
+            }
           }
         }
         return holder.childNodes;
