@@ -46,11 +46,11 @@ define([
 
       function replaceCurrencies(s) {
         return s.replace(
-          /£([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-currency=\"GBP\" data-value=\"$1\" data-user-disabled=\"false\" data-type=\"currency\">£$1</data>"
+          /£([\d]+\.?[\d]*[bmk]?)/g, "<data class=\"detected-unit\" data-currency=\"GBP\" data-value=\"$1\" data-user-disabled=\"false\" data-type=\"currency\">£$1</data>"
         ).replace(
-          /\$([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-currency=\"USD\" data-value=\"$1\" data-user-disabled=\"false\" data-type=\"currency\">$$$1</data>"
+          /\$([\d]+\.?[\d]*[bmk]?)/g, "<data class=\"detected-unit\" data-currency=\"USD\" data-value=\"$1\" data-user-disabled=\"false\" data-type=\"currency\">$$$1</data>"
         ).replace(
-          /€([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-currency=\"EUR\" data-value=\"$1\" data-user-disabled=\"false\" data-type=\"currency\">€$1</data>"
+          /€([\d]+\.?[\d]*[bmk]?)/g, "<data class=\"detected-unit\" data-currency=\"EUR\" data-value=\"$1\" data-user-disabled=\"false\" data-type=\"currency\">€$1</data>"
         );
       }
 
