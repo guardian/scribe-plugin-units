@@ -22,6 +22,12 @@ define([
 
       var elementHelpers = scribe.element;
 
+      scribe.el.addEventListener('click', function(e) {
+        if (e.target.getAttribute('data-type') == 'currency') {
+          e.target.setAttribute("data-user-disabled", "true");
+        }
+      });
+
       // When the character is actually inserted, format it to transform.
       scribe.el.addEventListener('input', function () {
         var selection = new scribe.api.Selection();
@@ -41,28 +47,12 @@ define([
       function currencyReplace(node) {
         var holder = document.createElement('div');
         holder.innerHTML = node.data.replace(/£([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-user-disabled=\"false\" data-type=\"currency\">£$1</data>");
-        var units = holder.querySelector("data.detected-unit");
-        if (units) {
-          for (var i = 0; i < units.length; i++) {
-            units[i].onclick = function () {
-              this.setAttribute("data-user-disabled", "true");
-            }
-          }
-        }
         return holder.childNodes;
       }
 
       function currencyTidy(node) {
         var holder = document.createElement('div');
         holder.innerHTML = node.innerHTML.replace(/£([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-user-disabled=\"false\" data-type=\"currency\">£$1</data>");
-        var units = holder.querySelector("data.detected-unit");
-        if (units) {
-          for (var i = 0; i < units.length; i++) {
-            units[i].onclick = function () {
-              this.setAttribute("data-user-disabled", "true");
-            }
-          }
-        }
         return holder.childNodes;
       }
 
