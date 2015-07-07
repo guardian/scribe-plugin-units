@@ -17,14 +17,6 @@ define([
 
   return function () {
 
-    var openDoubleCurly = '“';
-    var closeDoubleCurly = '”';
-
-    var openSingleCurly = '‘';
-    var closeSingleCurly = '’';
-
-    var NON_BREAKING_SPACE = '\u00A0';
-
     return function (scribe) {
 
       addCss();
@@ -82,7 +74,13 @@ define([
 
       function currencyReplace(node) {
         var holder = document.createElement('div');
-        holder.innerHTML = node.data.replace(/£([\d]+\.?[\d]*)/g, "<data currency=\"GBP\">£$1</data>");
+        holder.innerHTML = node.data.replace(/£([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-user-disabled=\"false\" data-currency=\"GBP\">£$1</data>");
+        var units = holder.querySelector("data.detected-unit");
+        for (var i = 0; i < units.length; i++) {
+          units[i].onclick = function() {
+            this.setAttribute("data-user-disabled", "true");
+          }
+        }
         return holder.childNodes;
       }
 

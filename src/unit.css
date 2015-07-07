@@ -1,10 +1,10 @@
-.detected-unit {
+.detected-unit[data-user-disabled=false] {
     background-color: lightgrey;
     padding: 3px 0 3px 3px;
     border-radius: 3px;
 }
 
-.detected-unit::after {
+.detected-unit[data-user-disabled=false]::after {
     content: 'x';
     margin-left: 5px;
     background-color: lightgrey;
@@ -15,7 +15,7 @@
     cursor: pointer;
 }
 
-.detected-unit:hover::after {
+.detected-unit[data-user-disabled=false]:hover::after {
     background-color: darkgrey;
     color: lightgrey;
 }
