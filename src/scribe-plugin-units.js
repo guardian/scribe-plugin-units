@@ -44,15 +44,25 @@ define([
       // Substitute quotes on setting content or paste
       scribe.registerHTMLFormatter('normalize', unitsNormalize);
 
+      function replaceCurrencies(s) {
+        return s.replace(
+          /£([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-currency=\"GBP\" data-value=\"$1\" data-user-disabled=\"false\" data-type=\"currency\">£$1</data>"
+        ).replace(
+          /\$([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-currency=\"USD\" data-value=\"$1\" data-user-disabled=\"false\" data-type=\"currency\">$$$1</data>"
+        ).replace(
+          /€([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-currency=\"EUR\" data-value=\"$1\" data-user-disabled=\"false\" data-type=\"currency\">€$1</data>"
+        );
+      }
+
       function currencyReplace(node) {
         var holder = document.createElement('div');
-        holder.innerHTML = node.data.replace(/£([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-user-disabled=\"false\" data-type=\"currency\">£$1</data>");
+        holder.innerHTML = replaceCurrencies(node.data);
         return holder.childNodes;
       }
 
       function currencyTidy(node) {
         var holder = document.createElement('div');
-        holder.innerHTML = node.innerHTML.replace(/£([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-user-disabled=\"false\" data-type=\"currency\">£$1</data>");
+        holder.innerHTML = replaceCurrencies(node.innerHTML);
         return holder.childNodes;
       }
 
