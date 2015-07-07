@@ -1,10 +1,15 @@
-.detected-unit[data-user-disabled=false] {
+.detected-unit[data-user-disabled="false"] {
     background-color: lightgrey;
     padding: 3px 0 3px 3px;
     border-radius: 3px;
 }
 
-.detected-unit[data-user-disabled=false]::after {
+.detected-unit[data-user-disabled="true"] {
+    color: darkred;
+    text-decoration: underline;
+}
+
+.detected-unit[data-user-disabled="false"]::after {
     content: 'x';
     margin-left: 5px;
     background-color: lightgrey;
@@ -15,7 +20,7 @@
     cursor: pointer;
 }
 
-.detected-unit[data-user-disabled=false]:hover::after {
+.detected-unit[data-user-disabled="false"]:hover::after {
     background-color: darkgrey;
     color: lightgrey;
 }
