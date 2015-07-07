@@ -42,7 +42,7 @@ define([
 
       function currencyReplace(node) {
         var holder = document.createElement('div');
-        holder.innerHTML = node.data.replace(/£([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-user-disabled=\"false\" data-type=\"GBP\">£$1</data>");
+        holder.innerHTML = node.data.replace(/£([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-user-disabled=\"false\" data-type=\"currency\">£$1</data>");
         var units = holder.querySelector("data.detected-unit");
         if (units) {
           for (var i = 0; i < units.length; i++) {
@@ -56,7 +56,15 @@ define([
 
       function currencyTidy(node) {
         var holder = document.createElement('div');
-        holder.innerHTML = node.innerHTML.replace(/£([\d]+\.?[\d]*)/g, "<data data-type=\"currency\">£$1</data>")
+        holder.innerHTML = node.innerHTML.replace(/£([\d]+\.?[\d]*)/g, "<data class=\"detected-unit\" data-user-disabled=\"false\" data-type=\"currency\">£$1</data>");
+        var units = holder.querySelector("data.detected-unit");
+        if (units) {
+          for (var i = 0; i < units.length; i++) {
+            units[i].onclick = function () {
+              this.setAttribute("data-user-disabled", "true");
+            }
+          }
+        }
         return holder.childNodes;
       }
 
