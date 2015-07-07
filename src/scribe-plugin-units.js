@@ -105,6 +105,8 @@ define([
           console.log(child)
           if (child.nodeType == child.TEXT_NODE) {
             child = replaceWithMultiple(node, child, currencyReplace(child));
+          } else if(child.getAttribute("data-user-disabled") == "true") {
+            // do nothing
           } else if(child.getAttribute("data-type") == "currency") {
             child = replaceWithMultiple(node, child, currencyTidy(child));
           } else if(child.childNodes.length > 0) {
