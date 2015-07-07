@@ -6,8 +6,20 @@ define([
   units
 ) {
 
+  function addCss() {
+    var head = document.getElementsByTagName('head')[0];
+    var s = document.createElement('link');
+    s.setAttribute('rel', 'stylesheet');
+    s.setAttribute('href', '../bower_components/scribe-plugin-units/src/unit.css');
+    s.setAttribute('type', 'text/css');
+    head.appendChild(s);
+  }
+
   return function () {
     return function (scribe) {
+
+      addCss();
+
       var elementHelpers = scribe.element;
       scribe.el.addEventListener('input', function () {
         var selection = new scribe.api.Selection();

@@ -1,0 +1,21 @@
+.detected-unit {
+    background-color: lightgrey;
+    padding: 3px 0 3px 3px;
+    border-radius: 3px;
+}
+
+.detected-unit::after {
+    content: 'x';
+    margin-left: 5px;
+    background-color: lightgrey;
+    color: darkgrey;
+    padding: 3px;
+    border-bottom-right-radius: 3px;
+    border-top-right-radius: 3px;
+    cursor: pointer;
+}
+
+.detected-unit:hover::after {
+    background-color: darkgrey;
+    color: lightgrey;
+}
