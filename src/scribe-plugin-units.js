@@ -1,9 +1,7 @@
 define([
-  'lodash-amd/modern/lang/toArray',
-   '../../scribe-plugin-units/src/units'
+  'lodash-amd/modern/lang/toArray'
 ], function (
-  toArray,
-  units
+  toArray
 ) {
 
   function addCss() {
@@ -15,113 +13,110 @@ define([
     head.appendChild(s);
   }
 
+  'use strict';
+
   return function () {
+
+    var openDoubleCurly = '“';
+    var closeDoubleCurly = '”';
+
+    var openSingleCurly = '‘';
+    var closeSingleCurly = '’';
+
+    var NON_BREAKING_SPACE = '\u00A0';
+
     return function (scribe) {
 
       addCss();
 
-      var elementHelpers = scribe.element;
-      scribe.el.addEventListener('input', function () {
-        var selection = new scribe.api.Selection();
-        var containingBlockElement = scribe.allowsBlockElements()
-          ? selection.getContaining(elementHelpers.isBlockElement)
-          : scribe.el;
+      /**
+       * Run the formatter as you type on the current paragraph.
+       *
+       * FIXME: We wouldn't have to do this if the formatters were run on text
+       * node mutations, but that's expensive unil we have a virtual DOM.
+       */
 
-        selection.placeMarkers();
-        containingBlockElement.innerHTML = substituteCurlyQuotes(containingBlockElement.innerHTML);
-        selection.selectMarkers();
+      var keys = {
+        34: '"',
+        39: '\'',
+        163: '£',
+        48: '0',
+        49: '1',
+        50: '2',
+        51: '3',
+        52: '4',
+        53: '5',
+        54: '6',
+        55: '7',
+        56: '8',
+        57: '9'
+      };
+      var currencyChar;
+
+      var elementHelpers = scribe.element;
+
+      // `input` doesn't tell us what key was pressed, so we grab it beforehand
+      scribe.el.addEventListener('keypress', function (event) {
+        currencyChar = keys[event.charCode];
+      });
+
+      // When the character is actually inserted, format it to transform.
+      scribe.el.addEventListener('input', function () {
+        if (currencyChar) {
+          var selection = new scribe.api.Selection();
+          var containingBlockElement = scribe.allowsBlockElements()
+            ? selection.getContaining(elementHelpers.isBlockElement)
+            : scribe.el;
+
+          selection.placeMarkers();
+
+          containingBlockElement.innerHTML = unitsNormalize(containingBlockElement.innerHTML);
+          selection.selectMarkers();
+          // Reset
+          currencyChar = undefined;
+        }
       });
 
       // Substitute quotes on setting content or paste
-      scribe.registerHTMLFormatter('normalize', substituteCurlyQuotes);
+      scribe.registerHTMLFormatter('normalize', unitsNormalize);
 
-      function isWordCharacter(character) {
-          return /[^\s()]/.test(character);
+      function currencyReplace(node) {
+        var holder = document.createElement('div');
+        holder.innerHTML = node.data.replace(/£([\d]+\.?[\d]*)/g, "<data currency=\"GBP\">£$1</data>");
+        return holder.childNodes;
       }
 
-      function substituteCurlyQuotes(html) {
-        // We don't want to replace quotes within the HTML markup
-        // (e.g. attributes), only to text nodes
+      function replaceWithMultiple(node, child, extra) {
+        if (extra.length == 0)
+          return;
+        while (extra.length > 1) {
+          node.insertBefore(extra[0], child);
+        }
+        node.replaceChild(extra[0], child);
+      }
+
+      function unitsNormalize(html) {
         var holder = document.createElement('div');
         holder.innerHTML = html;
-
-        // Replace straight single and double quotes with curly
-        // equivalent in the given string
-        mapElements(holder, function(prev, str) {
-          // Tokenise HTML elements vs text between them
-          // Note: this is escaped HTML in the text node!
-          // Split by elements
-          // We tokenise with the previous text nodes for context, but
-          // only extract the current text node.
-          //var tokens = str.replace .split(/(<[^>]+?>(?:.*<\/[^>]+?>)?)/);
-
-          //return str.replace(/£([\d]+)/, "<span data-currency=\"GBP\">£$1</span>");
-          return str;
-        });
-
-        return holder.innerHTML;
+        console.log(html)
+        var normed = parseNodes(holder).innerHTML
+        console.log(normed)
+        return normed
       }
 
-      // Recursively convert the quotes to curly quotes. We have to do this
-      // recursively instead of with a global match because the latter would
-      // not detect overlaps, e.g. "'1'" (text can only be matched once).
-      function convert(str) {
-        if (! /['"]/.test(str)) {
-          return str;
-        } else {
-          var foo = str.
-            // Use [\s\S] instead of . to match any characters _including newlines_
-            replace(/([\s\S])?'/,
-                    replaceQuotesFromContext(openSingleCurly, closeSingleCurly)).
-            replace(/([\s\S])?"/,
-                    replaceQuotesFromContext(openDoubleCurly, closeDoubleCurly));
-          return convert(foo);
-        }
-      }
-
-      function replaceQuotesFromContext(openCurly, closeCurly) {
-        return function(m, prev) {
-          prev = prev || '';
-          var hasCharsBefore = isWordCharacter(prev);
-          // Optimistic heuristic, would need to look at DOM structure
-          // (esp block vs inline elements) for more robust inference
-          if (hasCharsBefore) {
-            return prev + closeCurly;
+      function parseNodes(node) {
+        var child = node.firstChild;
+        while (child) {
+          if (child.nodeType == child.TEXT_NODE) {
+            replaceWithMultiple(node, child, currencyReplace(child));
+          } else if(child.childNodes.length > 0) {
+            parseNodes(child);
           } else {
-            return prev + openCurly;
           }
-        };
-      }
-
-      // Apply a function on all text nodes in a container, mutating in place
-      function mapElements(containerElement, func) {
-        // TODO: This heuristic breaks for elements that contain a mixture of
-        // inline and block elements.
-        var nestedBlockElements = toArray(containerElement.children).filter(elementHelpers.isBlockElement);
-        if (nestedBlockElements.length) {
-          nestedBlockElements.forEach(function (nestedBlockElement) {
-            // Map the nested block elements
-            mapElements(nestedBlockElement, func);
-          });
-        } else {
-          mapTextNodes(containerElement, func);
+          if (child != null)
+          child = child.nextSibling;
         }
-      }
-
-      function mapTextNodes(containerElement, func) {
-        // TODO: Only walk inside of text nodes within inline elements
-        var walker = document.createTreeWalker(containerElement, NodeFilter.SHOW_TEXT);
-        var node = walker.firstChild();
-        var prevTextNodes = '';
-        while (node) {
-          // Split by BR
-          if (node.previousSibling && node.previousSibling.nodeName === 'BR') {
-            prevTextNodes = '';
-          }
-          node.data = func(prevTextNodes, node.data);
-          prevTextNodes += node.data;
-          node = walker.nextSibling();
-        }
+        return node;
       }
 
     };
