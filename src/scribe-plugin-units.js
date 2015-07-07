@@ -1,7 +1,5 @@
 define([
-  'lodash-amd/modern/lang/toArray'
 ], function (
-  toArray
 ) {
 
   'use strict';
