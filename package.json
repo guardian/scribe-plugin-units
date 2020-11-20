@@ -3,7 +3,7 @@
   "version": "0.1.8",
   "main": "src/scribe-plugin-units.js",
   "dependencies": {
-    "lodash-amd": "3.5.0"
+    "lodash-amd": "3.10.2"
   },
   "devDependencies": {
     "chai": "~1.9.1",
